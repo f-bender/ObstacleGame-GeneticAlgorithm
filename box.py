@@ -35,27 +35,28 @@ class Box:
     pipeSpeed_normalized = map(pipeSpeed, 0, 6*defaultPipeSpeed, -1,1)
 
     gapX_normalized = 0
+    overnext_gapX_normalized = 0
     dist_next_pipe_normalized = 1
-    try:
-      next_pipe = next(pipe for pipe in pipes[::-1] if pipe.y <= self.y)
 
-      gapX_normalized = map(next_pipe.gap_x, 0,WIDTH-gap,-1,1)
-      dist_next_pipe_normalized = map(self.y-next_pipe.y-thickness, 0,defaultInterval-thickness,-1,1)
-    except:
-      pass
-      # print("no next pipe"+str(random.randrange(10)))
+    pipes_ahead = [pipe for pipe in pipes[::-1] if pipe.y <= self.y]
+    if len(pipes_ahead) > 0:
+      gapX_normalized = map(pipes_ahead[0].gap_x, 0,WIDTH-gap,-1,1)
+      dist_next_pipe_normalized = map(self.y-pipes_ahead[0].y-thickness, 0,defaultInterval-thickness,-1,1)
+      if len(pipes_ahead) > 1:
+        overnext_gapX_normalized = map(pipes_ahead[1].gap_x, 0,WIDTH-gap,-1,1)
 
-    dist_last_pipe_normalized = 1
-    try:
-      last_pipe = next(pipe for pipe in pipes if pipe.y > self.y)
-      dist_last_pipe_normalized = map(last_pipe.y-self.y-self.height, 0,defaultInterval-self.height,-1,1)
-    except:
-      pass
+
+    # dist_last_pipe_normalized = 1
+    # try:
+    #   last_pipe = next(pipe for pipe in pipes if pipe.y > self.y)
+    #   dist_last_pipe_normalized = map(last_pipe.y-self.y-self.height, 0,defaultInterval-self.height,-1,1)
+    # except:
+    #   pass
       # print("no previous pipe"+str(random.randrange(10)))
 
-    # TODO: add gapX of übernächste pipe!
+    # TODO: add gapX of übernächste pipe! DONE!
     x, y = self.brain.predict_outputs([speedX_normalized,speedY_normalized,posX_normalized,pipeSpeed_normalized,
-                                        gapX_normalized,dist_next_pipe_normalized,dist_last_pipe_normalized])
+                                        gapX_normalized,dist_next_pipe_normalized,overnext_gapX_normalized])
     mouseX, mouseY = x*WIDTH/4+WIDTH/2, y*HEIGHT/4+HEIGHT/2
     # mouseX, mouseY = get_pos()
     self.accX = map(mouseX - (self.x+self.width/2), -1080, 1080, -2, 2)
