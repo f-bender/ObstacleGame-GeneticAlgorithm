@@ -1,3 +1,0 @@
-fitness 5
-score 4
-time_alive 100

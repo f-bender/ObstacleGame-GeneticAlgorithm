@@ -1,6 +1,6 @@
 from pygame.draw import rect
 from pygame.mouse import get_pos
-from settings_constants import WHITE, map, damageFactor, WIDTH, HEIGHT, gap, thickness, defaultInterval, defaultPipeSpeed, default_hidden_layers
+from settings_constants import WHITE, map, damageFactor, WIDTH, HEIGHT, gap, thickness, defaultInterval, defaultPipeSpeed, default_hidden_layers, calc_fitness
 from NeuralNetwork import NeuralNetwork
 # import random
 
@@ -53,6 +53,7 @@ class Box:
       pass
       # print("no previous pipe"+str(random.randrange(10)))
 
+    # TODO: add gapX of übernächste pipe!
     x, y = self.brain.predict_outputs([speedX_normalized,speedY_normalized,posX_normalized,pipeSpeed_normalized,
                                         gapX_normalized,dist_next_pipe_normalized,dist_last_pipe_normalized])
     mouseX, mouseY = x*WIDTH/4+WIDTH/2, y*HEIGHT/4+HEIGHT/2
@@ -95,6 +96,7 @@ class Box:
 
     if self.life <= 0:
       self.dead = True
+      self.fitness = calc_fitness(self.score, self.time_alive)
 
   def handleCollision(self,pipe):
     # boxUpper = self.y
@@ -107,4 +109,4 @@ class Box:
     # pipeRight = pipe.gap_x + pipe.gap_width
     if self.y < pipe.y+pipe.thickness and self.y+self.height > pipe.y and (self.x < pipe.gap_x or self.x+self.width > pipe.gap_x+pipe.gap_width):
         self.dead = True
-        self.fitness = self.score + self.time_alive/5000
+        self.fitness = calc_fitness(self.score, self.time_alive)

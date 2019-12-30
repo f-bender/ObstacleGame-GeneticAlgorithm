@@ -9,7 +9,7 @@ def get_new_population(old_pop):
     new_pop = []
 
     # print(f'old avg: {sum(x[1] for x in old_pop)/len(old_pop)}')
-    
+    max_fitness = 0
     for x in range(len(old_pop)//2):
         fitness_sum = sum(x[1] for x in old_pop)
         rand = numpy.random.uniform(high=fitness_sum)
@@ -18,8 +18,11 @@ def get_new_population(old_pop):
         for idx, (matrices, fitness) in enumerate(old_pop):
             running_sum += fitness
             if running_sum > rand:
-                # old_pop.remove((matrices, fitness))
-                new_pop.append(old_pop.pop(idx)[0])
+                if fitness > max_fitness:
+                    max_fitness = fitness
+                    new_pop.insert(0,old_pop.pop(idx)[0])
+                else:
+                    new_pop.append(old_pop.pop(idx)[0])
                 break
 
     # print(f'new avg: {sum(x[1] for x in new_pop)/len(new_pop)}')
