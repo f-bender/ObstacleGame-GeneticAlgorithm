@@ -1,7 +1,7 @@
 import pygame
 from pipe import Pipe
-from settings_constants import WIDTH, HEIGHT, BLACK, WHITE, thickness, POSX, POSY, defaultInterval, boxWidth, gap, thickness, defaultPipeSpeed
-from settings_constants import map, population_size, use_pretrained, save_directory, input_description
+from settings_constants import WIDTH, HEIGHT, BLACK, WHITE, thickness, POSX, POSY, defaultInterval, boxWidth, gap, thickness, defaultPipeSpeed, fitness_calc, discourage_hitting_walls
+from settings_constants import map, population_size, use_pretrained, save_directory, input_description, lower_y_higher_score, activation, default_hidden_layers
 import os
 import random
 from box import Box
@@ -12,7 +12,7 @@ pygame.init()
 
 os.environ['SDL_VIDEO_WINDOW_POS'] = "%d,%d" % (POSX,POSY)
 gameDisplay = pygame.display.set_mode((WIDTH,HEIGHT))
-pygame.display.set_caption('Obstacle Dodge Game')
+pygame.display.set_caption(save_directory)
 clock = pygame.time.Clock()
 font = pygame.font.Font(None, 60)
 
@@ -20,6 +20,8 @@ frameRate = 60
 frameCount = 0
 paintDelay = 1
 only_show_best = False
+playing = False
+player_box = None
 
 pipeSpeed = defaultPipeSpeed
 interval = defaultInterval
@@ -32,7 +34,13 @@ if use_pretrained:
             line_elems = line.strip().split(": ")
             if line_elems[0] == "hidden_layers":
                 layers = int(line_elems[-1])
-        print(layers)
+            if line_elems[0] == "input_description":
+                try:
+                    assert line_elems[-1] == input_description
+                except AssertionError as e:
+                    print(str(e))
+                    print(f'Inputs of saved: {line_elems[-1]}\nInputs currently: {input_description}')
+                    exit(1)
 
     brain_matrices = []
     for idx in range(layers+1):
@@ -69,6 +77,10 @@ while not exit:
                 paintDelay += 100
             if event.unicode == "b":
                 only_show_best = not only_show_best
+            if event.unicode == "p":
+                playing = not playing
+                if not playing:
+                    player_box = None
             print(frameRate)
             print(clock.get_fps())
         # print(event)
@@ -96,7 +108,11 @@ while not exit:
         for pipe in pipes:
             box.handleCollision(pipe)
             if not pipe.passed[box.id] and box.y+box.height < pipe.y:
-                box.score += 1
+                box.basic_score += 1
+                if lower_y_higher_score:
+                    box.score += 1-0.25*box.y/HEIGHT
+                else:
+                    box.score += 1
                 pipe.passed[box.id] = True
         if box.dead:
             boxes.remove(box)
@@ -111,8 +127,25 @@ while not exit:
             pygame.draw.line(gameDisplay, col, (mouseX, mouseY), (int(box.x+box.width//2), int(box.y+box.height//2)), box.width//5)
             box.paint(gameDisplay)
 
+    if playing and player_box:
+        mouseX, mouseY = player_box.update(pipes, pipeSpeed, playing=True)
+        player_box.move()
+        player_box.limit()
+        for pipe in pipes:
+            player_box.handleCollision(pipe)
+            if not pipe.passed[player_box.id] and player_box.y+player_box.height < pipe.y:
+                player_box.basic_score += 1
+                pipe.passed[player_box.id] = True
+        if player_box.dead:
+            player_box = None
+        else:
+            colval = int(max( min(511, map( ((mouseX-player_box.x)**2+(mouseY-player_box.y)**2)**(0.5), 0, WIDTH*0.7, 511, 0)), 0))
+            col = (min(511 - colval, 255), min(colval, 255), 0, 10)
+            pygame.draw.line(gameDisplay, col, (mouseX, mouseY), (int(player_box.x+player_box.width//2), int(player_box.y+player_box.height//2)), player_box.width//5)
+            player_box.paint(gameDisplay)
+
     
-    if not boxes:
+    if not boxes and not player_box:
         # resets game
         better = False
         curr_fitness = 0
@@ -129,10 +162,16 @@ while not exit:
                 numpy.savetxt(f'{save_directory}\\{left}-{right}.txt', matrix)
             with open(save_directory+"\\stats.txt", "w") as stats_file:
                 stats_file.write(f'fitness: {dead_boxes[-1].fitness}\n')
-                stats_file.write(f'score: {dead_boxes[-1].score}\n')
-                stats_file.write(f'time_alive: {dead_boxes[-1].time_alive}\n')
-                stats_file.write(f'hidden_layers: {len(box.brain.weights_matrices)-1}\n')
-                stats_file.write(f'input_description: {input_description}')
+                stats_file.write(f'score for fitness calc: {dead_boxes[-1].score}\n')
+                stats_file.write(f'score: {dead_boxes[-1].basic_score}\n')
+                stats_file.write(f'time_alive: {dead_boxes[-1].time_alive}\n\n')
+                stats_file.write(f'hidden_layers: {len(dead_boxes[-1].brain.weights_matrices)-1}\n')
+                stats_file.write(f'hidden_layer_layout: {str(default_hidden_layers)}\n')
+                stats_file.write(f'input_description: {input_description}\n')
+                stats_file.write(f'discourage_hitting_walls: {discourage_hitting_walls}\n')
+                stats_file.write(f'activation: {activation}\n')
+                stats_file.write(f'lower_y_higher_score: {lower_y_higher_score}\n')
+                stats_file.write(f'fitness_calc: {fitness_calc}')
                 
         
 
@@ -146,10 +185,15 @@ while not exit:
         pipes = [Pipe(-thickness,thickness,random.randrange(WIDTH-gap),gap)]
         pipeSpeed = defaultPipeSpeed
         interval = defaultInterval
+        if playing:
+            player_box = Box(-1, boxWidth, boxWidth, [255,0,255])
         continue
 
-    fps = font.render(str(boxes[0].score), True, [255,0,0])
-    gameDisplay.blit(fps, (25, 50))
+    if player_box:
+        fps = font.render(str(player_box.basic_score), True, [255,0,0])
+    else:
+        fps = font.render(str(boxes[0].basic_score), True, [255,0,0])
+    gameDisplay.blit(fps, (15, 15))
 
     pipeSpeed += defaultPipeSpeed / 4000
     if interval > 5*thickness+boxWidth:

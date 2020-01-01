@@ -17,7 +17,7 @@ def get_new_population(old_pop):
         running_sum = 0
         for idx, (matrices, fitness) in enumerate(old_pop):
             running_sum += fitness
-            if running_sum > rand:
+            if running_sum > rand or idx == len(old_pop)-1: # failsave: spätestens das lezte element wird auf jeden Fall genommen
                 if fitness > max_fitness:
                     max_fitness = fitness
                     new_pop.insert(0,old_pop.pop(idx)[0])

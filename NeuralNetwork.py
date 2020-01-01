@@ -8,6 +8,9 @@ def sigmoid(inpt):
 def relu(inpt):
     return max(inpt,0)
 
+def tanh(inpt):
+    return numpy.tanh(inpt)
+
 class NeuralNetwork:
     def __init__(self, inp = None, hidden = None, outp = None, weights_matrices = None):
         """ inp:        number of input neurons
@@ -35,7 +38,11 @@ class NeuralNetwork:
 
     def predict_outputs(self, data_inputs, activation_fct=activation):
         # activation function
-        function = sigmoid if activation_fct == "sigmoid" else relu
+        function = tanh
+        if activation_fct == "relu":
+            function = relu
+        elif activation_fct == "sigmoid":
+            function = sigmoid
 
         # appending bias, converting to numpy array
         previous_neurons_bias = numpy.append(numpy.array(data_inputs), 1)

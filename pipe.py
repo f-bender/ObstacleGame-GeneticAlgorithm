@@ -8,7 +8,7 @@ class Pipe:
         self.thickness = thickness
         self.gap_x = gap_x
         self.gap_width = gap_width
-        self.passed = [False for x in range(population_size)]
+        self.passed = [False for x in range(population_size+1)]
 
     def move(self, speed):
         self.y += speed
