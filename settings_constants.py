@@ -1,8 +1,11 @@
 BLACK = (0,0,0)
 WHITE = (255,255,255)
 
-def map(val, min1,max1,min2,max2):
-    return (val-min1)/(max1-min1)*(max2-min2)+min2
+def mapValue(val, min1,max1,min2,max2, strict_limit = False):
+    mapped = (val-min1)/(max1-min1)*(max2-min2)+min2
+    if strict_limit:
+        mapped = max( min(mapped, max(max2,min2)) , min(max2,min2) )
+    return mapped
 
 WIDTH = 800
 HEIGHT = 600
@@ -19,16 +22,16 @@ damageFactor = 1600 / WIDTH
 
 
 use_pretrained = True
-save_directory = "exponential_fitness_overNextGap"
-lower_y_higher_score = True
+save_directory = "restrictedOnScreen_yPosGiven_fasterDifficult_lastPipeDistance_greaterMutation"
+lower_y_higher_score = False
 
-input_description = "[speedX_normalized, speedY_normalized, posX_normalized, pipeSpeed_normalized, gapX_normalized, dist_next_pipe_normalized, overnext_gapX_normalized]"
+input_description = "[speedX_normalized, speedY_normalized, posX_normalized, posY_normalized, pipeSpeed_normalized, gapX_normalized, dist_next_pipe_normalized, dist_last_pipe_normalized, overnext_gapX_normalized]"
 
 population_size = 100
 assert population_size%2 == 0
-mutation_rate = 0.5
-variance = 0.2
-default_hidden_layers = [7]
+mutation_rate =  0.6#0.5
+variance =  0.3#0.2
+default_hidden_layers = [9]
 assert type(default_hidden_layers) is list
 discourage_hitting_walls = True
 fitness_calc = "exponential"
@@ -36,13 +39,17 @@ assert fitness_calc in ["exponential", "linear"]
 activation = "sigmoid"
 assert activation in ["sigmoid", "relu", "tanh"]
 
+start_time = 0 # 24230 ~ level 517
+
 def calc_fitness(score, time_alive, life_left, wall_hit = False):
     if discourage_hitting_walls and wall_hit:
         return 0
 
-    combined = score+time_alive/5000+life_left/50
+    # combined = score+time_alive/5000+life_left/50
+    combined = score+life_left/50
     if fitness_calc == "linear":
         return combined
+    # else: exponential
     if combined < 14.77:
         return combined
     return 1.2**(combined)

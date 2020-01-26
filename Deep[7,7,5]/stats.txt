@@ -1,0 +1,12 @@
+fitness: 6.0
+score for fitness calc: 4
+score: 4
+time_alive: 1908
+
+hidden_layers: 3
+hidden_layer_layout: [7, 7, 5]
+input_description: [speedX_normalized, speedY_normalized, posX_normalized, pipeSpeed_normalized, gapX_normalized, dist_next_pipe_normalized, overnext_gapX_normalized]
+discourage_hitting_walls: True
+activation: sigmoid
+lower_y_higher_score: False
+fitness_calc: exponential

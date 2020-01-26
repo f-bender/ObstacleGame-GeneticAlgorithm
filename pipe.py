@@ -1,4 +1,4 @@
-from settings_constants import WIDTH, HEIGHT, BLACK, WHITE, population_size
+from settings_constants import WIDTH, WHITE, population_size
 from pygame.draw import rect
 
 class Pipe:
@@ -15,6 +15,4 @@ class Pipe:
 
     def draw(self, surface):
         rect(surface, WHITE,(0,self.y, self.gap_x, self.thickness))
-        # rect(surface, BLACK, (0,self.y,self.gap_x, self.thickness), self.border)
         rect(surface, WHITE,(self.gap_x+self.gap_width,self.y, WIDTH-self.gap_x-self.gap_width, self.thickness))
-        # rect(surface, BLACK,(self.gap_x+self.gap_width,self.y, WIDTH-self.gap_x-self.gap_width, self.thickness), self.border)
