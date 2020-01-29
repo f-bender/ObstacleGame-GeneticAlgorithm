@@ -1,7 +1,7 @@
-fitness: 641051633104039.8
-score for fitness calc: 185
-score: 185
-time_alive: 10212
+fitness: 4479449.738824558
+score for fitness calc: 82
+score: 82
+time_alive: 2468
 
 hidden_layers: 1
 hidden_layer_layout: [9]

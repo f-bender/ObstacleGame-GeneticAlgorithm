@@ -22,15 +22,15 @@ damageFactor = 1600 / WIDTH
 
 
 use_pretrained = True
-save_directory = "restrictedOnScreen_yPosGiven_fasterDifficult_lastPipeDistance_greaterMutation"
+save_directory = "restrictedOnScreen_yPosGiven_fasterDifficult_lastPipeDistance"
 lower_y_higher_score = False
 
 input_description = "[speedX_normalized, speedY_normalized, posX_normalized, posY_normalized, pipeSpeed_normalized, gapX_normalized, dist_next_pipe_normalized, dist_last_pipe_normalized, overnext_gapX_normalized]"
 
 population_size = 100
 assert population_size%2 == 0
-mutation_rate =  0.6#0.5
-variance =  0.3#0.2
+mutation_rate =  0.5
+variance =  0.2
 default_hidden_layers = [9]
 assert type(default_hidden_layers) is list
 discourage_hitting_walls = True
