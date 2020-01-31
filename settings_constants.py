@@ -41,6 +41,13 @@ assert activation in ["sigmoid", "relu", "tanh"]
 
 start_time = 0 # 24230 ~ level 517
 
+discrete_competition = False
+assert not (discrete_competition and use_pretrained)
+competing_NNs_directories = [
+    "restrictedOnScreen_yPosGiven_fasterDifficult_lastPipeDistance",
+    "restrictedOnScreen_yPosGiven_fasterDifficult_lastPipeDistance\\2020-01-30 20-07-32.588107"
+    ]
+
 def calc_fitness(score, time_alive, life_left, wall_hit = False):
     if discourage_hitting_walls and wall_hit:
         return 0
@@ -53,3 +60,5 @@ def calc_fitness(score, time_alive, life_left, wall_hit = False):
     if combined < 14.77:
         return combined
     return 1.2**(combined)
+
+trail_length = 300

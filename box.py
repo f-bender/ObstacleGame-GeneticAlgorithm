@@ -1,9 +1,12 @@
 from pygame.draw import rect, line
 from pygame.mouse import get_pos
-from settings_constants import mapValue, damageFactor, WIDTH, HEIGHT, gap, thickness, defaultInterval, defaultPipeSpeed
+from settings_constants import mapValue, damageFactor, WIDTH, HEIGHT, WHITE, gap, thickness, defaultInterval, defaultPipeSpeed
 from settings_constants import  default_hidden_layers, calc_fitness, input_description
 from NeuralNetwork import NeuralNetwork
 # import random
+
+# TODO: Let every box have their own (self.)input_description!
+# (so that boxes with different ones can compete)
 
 class Box:
   def __init__(self,ID, w, h, color, weights_matrices = None):
@@ -26,11 +29,18 @@ class Box:
     self.brain = NeuralNetwork(input_description.count(",")+1,default_hidden_layers,2, weights_matrices = weights_matrices)
 
 
-  def paint(self, surface, mouseX, mouseY):
-    colval = int(max( min(511, mapValue( ((mouseX-self.x)**2+(mouseY-self.y)**2)**(0.5), 0, WIDTH*0.7, 511, 0)), 0))
-    col = (min(511 - colval, 255), min(colval, 255), 0, 10)
-    line(surface, col, (mouseX, mouseY), (int(self.x+self.width//2), int(self.y+self.height//2)), self.width//5)
-    rect(surface, self.color, (self.x, self.y, self.width, self.height))
+  def paint(self, surface, mouseX = None, mouseY = None, xPos = None, yPos = None, border = False):
+    if xPos is None:
+      xPos = self.x
+    if yPos is None:
+      yPos = self.y
+    if mouseX is not None and mouseY is not None:
+      colval = int(max( min(511, mapValue( ((mouseX-xPos)**2+(mouseY-yPos)**2)**(0.5), 0, WIDTH*0.7, 511, 0)), 0))
+      col = (min(511 - colval, 255), min(colval, 255), 0, 10)
+      line(surface, col, (mouseX, mouseY), (int(xPos+self.width//2), int(yPos+self.height//2)), self.width//5)
+    if border:
+      rect(surface, WHITE, (xPos-1, yPos-1, self.width+2, self.height+2))
+    rect(surface, self.color, (xPos, yPos, self.width, self.height))
 
   def update(self, pipes, pipeSpeed, playing = False):
     self.time_alive += 1
