@@ -1,9 +1,0 @@
-{
-    "python.pythonPath": "C:\\Users\\user\\Documents\\Python\\pygame\\.pygame381\\Scripts\\python.exe",
-    "python.linting.pylintEnabled": true,
-    "python.linting.enabled": true,
-    "python.linting.pylintArgs": [
-    	"--unsafe-load-any-extension=y",
-	"--disable=C"
-    ]
-}

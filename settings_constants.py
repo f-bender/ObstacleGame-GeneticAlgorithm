@@ -22,7 +22,7 @@ damageFactor = 1600 / WIDTH
 
 
 use_pretrained = True
-save_directory = "restrictedOnScreen_yPosGiven_fasterDifficult_lastPipeDistance"
+save_directory = "saved_networks/restrictedOnScreen_yPosGiven_fasterDifficult_lastPipeDistance"
 lower_y_higher_score = False
 
 input_description = "[speedX_normalized, speedY_normalized, posX_normalized, posY_normalized, pipeSpeed_normalized, gapX_normalized, dist_next_pipe_normalized, dist_last_pipe_normalized, overnext_gapX_normalized]"

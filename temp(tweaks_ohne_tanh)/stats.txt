@@ -1,5 +1,0 @@
-fitness: 12.435789772718016
-score: 10
-time_alive: 2892
-hidden_layers: 1
-input_description: [speedX_normalized, speedY_normalized, posX_normalized, pipeSpeed_normalized, gapX_normalized, dist_next_pipe_normalized, overnext_gapX_normalized]
